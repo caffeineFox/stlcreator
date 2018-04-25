@@ -51,7 +51,7 @@ if (shape in "qQ"):
                    [1,1,1]]
     
     while (not validInput):
-        inp = input("Kantenlängen eingeben (mit Komma getrennt): ").replace(" ", "").split(",")
+        inp = input("Kantenlängen eingeben (x, y, z und mit Komma getrennt): ").replace(" ", "").split(",")
         try:
             edgeLen = list(map(float, inp))
             if (len(edgeLen) == 3):
