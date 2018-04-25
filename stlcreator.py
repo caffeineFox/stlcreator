@@ -18,7 +18,6 @@ def calcNormal(p1, p2, p3):
     ''' lässt die Normale der von p1, p2, p3 aufgespannten Fläche berechnen '''
     v:np.array = p2 - p1
     w:np.array = p3 - p1
-    print(np.cross(v, w))
     return np.cross(v, w)
 
 
@@ -97,6 +96,14 @@ if (shape in "qQ"):
     y:float = edgeLen[1]
     z:float = edgeLen[2]
     
+    # indX/Y/Z:
+        # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
+        # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
+        # für erste 4 vertices mit Standardwert 0, 1, 2 belegt
+    indX:int = 0
+    indY:int = 1
+    indZ:int = 2
+
     # es wird von 0 bis 11 iteriert, damit alle 12 Dreiecksflächen, die für einen
     # Quader nötig sind, angelegt werden
     for i in range(0, 12):
@@ -108,37 +115,26 @@ if (shape in "qQ"):
         '''
         _i:int = i % 2
         __i:int = i % 4
+
+        if (i > 3 and i < 8):
+            indX = 2
+            indY = 0
+            indZ = 1
+        elif (i > 7):
+            indX = 1
+            indY = 2
+            indZ = 0
+
         vertices:[np.array] = []
-        if (i < 4): # mit i % 3 und etwas Magie zweiten Index bestimmen, dann kann sich Verzweigung gespart werden
-            vertices.append(np.array([x*bin[_i][0],
-                                      y*bin[_i][1],
-                                      z*bin[_i][2]]))
-            vertices.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][0],
-                                      y*bin[_i+(2 if __i in [0, 1] else 4)][1],
-                                      z*bin[_i+(2 if __i in [0, 1] else 4)][2]]))
-            vertices.append(np.array([x*bin[_i+6][0],
-                                      y*bin[_i+6][1],
-                                      z*bin[_i+6][2]]))
-        elif (i > 3 and i < 8):
-            vertices.append(np.array([x*bin[_i][2],
-                                      y*bin[_i][0],
-                                      z*bin[_i][1]]))
-            vertices.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][2],
-                                      y*bin[_i+(2 if __i in [0, 1] else 4)][0],
-                                      z*bin[_i+(2 if __i in [0, 1] else 4)][1]]))
-            vertices.append(np.array([x*bin[_i+6][2],
-                                      y*bin[_i+6][0],
-                                      z*bin[_i+6][1]]))
-        else:
-            vertices.append(np.array([x*bin[_i][1],
-                                      y*bin[_i][2],
-                                      z*bin[_i][0]]))
-            vertices.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][1],
-                                      y*bin[_i+(2 if __i in [0, 1] else 4)][2],
-                                      z*bin[_i+(2 if __i in [0, 1] else 4)][0]]))
-            vertices.append(np.array([x*bin[_i+6][1],
-                                      y*bin[_i+6][2],
-                                      z*bin[_i+6][0]]))
+        vertices.append(np.array([x*bin[_i][indX],
+                                  y*bin[_i][indY],
+                                  z*bin[_i][indZ]]))
+        vertices.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][indX],
+                                  y*bin[_i+(2 if __i in [0, 1] else 4)][indY],
+                                  z*bin[_i+(2 if __i in [0, 1] else 4)][indZ]]))
+        vertices.append(np.array([x*bin[_i+6][indX],
+                                  y*bin[_i+6][indY],
+                                  z*bin[_i+6][indZ]]))
 
         # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
         # und zu einem STL-konformen String umgewandelt
