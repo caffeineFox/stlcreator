@@ -4,7 +4,7 @@ import random as r
 
 
 def vectorToStr(vector):
-    ### possible fix: letzte Komponente bekommt auch Leerzeichen angehangen -> soll nicht
+    # TODO: letzte Komponente bekommt auch Leerzeichen angehangen -> soll nicht
     returnStr:str = ""
     for v in vector:
         returnStr += str(int(v) if v.is_integer() else v) + " "
@@ -41,6 +41,14 @@ if (shape in "qQ"):
     edgeLen:[float]
     inp:[str]
     validInput:bool = False
+    bin:[[int]] = [[0,0,0],
+                   [0,0,1],
+                   [0,1,0],
+                   [0,1,1],
+                   [1,0,0],
+                   [1,0,1],
+                   [1,1,0],
+                   [1,1,1]]
     
     while (not validInput):
         inp = input("Kantenlängen eingeben (mit Komma getrennt): ").replace(" ", "").split(",")
@@ -57,25 +65,48 @@ if (shape in "qQ"):
     z:float = edgeLen[2]
     
     for i in range(0, 12):
-        classI:int = i % 2
+        _i:int = i % 2
+        __i:int = i % 4
         vert:[np.array] = []
-        for j in range(0, 3):
-            vert.append(np.array([x*r.randint(0,1), y*r.randint(0,1), z*r.randint(0,1)]))
-                # vertex-loop
-                # generiere p1x - p3z
-                # vert.append
+        if (i < 4): # mit i % 3 und etwas Magie zweiten Index bestimmen, dann kann sich Verzweigung gespart werden
+            vert.append(np.array([x*bin[_i][0],
+                                  y*bin[_i][1],
+                                  z*bin[_i][2]]))
+            vert.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][0],
+                                  y*bin[_i+(2 if __i in [0, 1] else 4)][1],
+                                  z*bin[_i+(2 if __i in [0, 1] else 4)][2]]))
+            vert.append(np.array([x*bin[_i+6][0],
+                                  y*bin[_i+6][1],
+                                  z*bin[_i+6][2]]))
+        elif (i > 3 and i < 8): # mit i % 3 zweiten Index bestimmen oder so...
+            vert.append(np.array([x*bin[_i][2],
+                                  y*bin[_i][0],
+                                  z*bin[_i][1]]))
+            vert.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][2],
+                                  y*bin[_i+(2 if __i in [0, 1] else 4)][0],
+                                  z*bin[_i+(2 if __i in [0, 1] else 4)][1]]))
+            vert.append(np.array([x*bin[_i+6][2],
+                                  y*bin[_i+6][0],
+                                  z*bin[_i+6][1]]))
+        else: # mit i % 3 zweiten Index bestimmen oder so...
+            vert.append(np.array([x*bin[_i][1],
+                                  y*bin[_i][2],
+                                  z*bin[_i][0]]))
+            vert.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][1],
+                                  y*bin[_i+(2 if __i in [0, 1] else 4)][2],
+                                  z*bin[_i+(2 if __i in [0, 1] else 4)][0]]))
+            vert.append(np.array([x*bin[_i+6][1],
+                                  y*bin[_i+6][2],
+                                  z*bin[_i+6][0]]))
 
+        
         outStr += "  facet normal " + vectorToStr(calcNormal(vert[0], vert[1], vert[2]))
-
+        
+        outStr += "\n    outer loop"
         for v in vert:
             outStr += "\n      vertex " + vectorToStr(v)
 
-        outStr += "\n    outer loop"
-
         outStr += "\n    endloop\n  endfacet\n"
-
-
-
 
     outStr += "endsolid " + fileName
     safeToFile(fileName, outStr)
