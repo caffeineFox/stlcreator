@@ -15,6 +15,9 @@ fileName:
     # Name für die Outputdatei und das Modell (solid ... bzw endsolid ...)
 shape:
     # Auswahl, ob ein Quader oder ein Zylinder erstellt werden soll
+saveMode:
+    # Speichermodus, am Anfang w -> write -> existierende Datei/Dateiinhalt wird überschrieben
+    # wird nach erstem Speichern auf a gesetzt -> append -> hängt an existierenden Dateiinhalt an
 '''
 
 outStr:str
