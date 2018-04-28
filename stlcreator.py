@@ -62,10 +62,11 @@ while (fileName == ""):
 
 # Beginn des STL-Strings einfügen
 outStr = "solid " + fileName + "\n"
-
-shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
 saveToFile()
 saveMode = "a"  # saveMode umstellen
+
+while (shape == ""):
+    shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
 
 if (shape in "qQ"):
     ''' Zweig für Quader '''
