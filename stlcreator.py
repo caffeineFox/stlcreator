@@ -123,7 +123,7 @@ if (shape in "qQ"):
     for i in range(0, 12):
         '''
         _i, __i:
-            # Hilfsvariablen
+            # Hilfsvariablen zur Ebenen- und Dreiecksermittlung
         vertices:
             # hält die aktuelle Dreiermenge generierter Ecken/Eckkoordinaten
         '''
