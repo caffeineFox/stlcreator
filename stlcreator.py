@@ -1,15 +1,19 @@
 # Startbefehl: python3 stlcreator.py
 import numpy as np
 import random as r
+import os
 
 
-def vectorToStr(vector):
-    # TODO: letzte Komponente bekommt auch Leerzeichen angehangen -> soll nicht
+def vectorToStr(vector, shape):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
     Leerzeichen getrennt zurück)'''
     returnStr:str = ""
-    for v in vector:
-        returnStr += str(int(v) if isinstance(v, int) else v) + " "
+    if shape in "qQ":
+        for v in vector:
+            returnStr += str(int(v) if v.is_integer() else v) + " " #isinstance(v, int) else v) + " "
+    else:
+        for v in vector:
+            returnStr += str(int(v) if isinstance(v, int) else v) + " "
     return returnStr
 
 
@@ -21,14 +25,19 @@ def calcNormal(p1, p2, p3):
     return np.cross(v, w)
 
 
-def safeToFile(fileName, outStr):
+def safeToFile(fileName, outStr, firstSave):
     ''' das Ergebnis der Generation (outStr) wird in eine Datei mit der Endung .stl geschrieben '''
-    outFile = open("./" + fileName + ".stl", "w")
+    if firstSave:
+        outFile = open("./" + fileName + ".stl", "w")
+        firstSave = False
+    else:
+        outFile = open("./" + fileName + ".stl", "a")
     outFile.write(outStr)
     outFile.close()
-    print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
+
 
 def degToRad(deg):
+    ''' wandelt Grad in Radiant um '''
     return deg*np.pi/180
 
 '''
@@ -47,6 +56,7 @@ shape:
 outStr:str
 fileName:str = ""
 shape:str = ""
+firstSave:bool = True
 
 # solange fileName leer ist, soll zur Eingabe aufgefordert werden
 while (fileName == ""):
@@ -141,21 +151,24 @@ if (shape in "qQ"):
 
         # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
         # und zu einem STL-konformen String umgewandelt
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]), shape)
 
         # Beginn der neuen Dreiecksfläche
         outStr += "\n    outer loop"
 
         # die Eckkoordinaten werden zusammen mit dem Schlüsselwort "vertex" an den STL-String angehangen
         for v in vertices:
-            outStr += "\n      vertex " + vectorToStr(v)
+            outStr += "\n      vertex " + vectorToStr(v, shape)
 
         # Ende der neuen Dreiecksfläche
         outStr += "\n    endloop\n  endfacet\n"
+        if __i == 3:
+            safeToFile(fileName, outStr, firstSave)
 
     # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
-    safeToFile(fileName, outStr)
+    safeToFile(fileName, outStr, firstSave)
+    print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 elif (shape in "zZ"):
 
@@ -191,37 +204,39 @@ elif (shape in "zZ"):
 
         # Unten
         # siehe Kommentare in if-Zweig für Erklärungen
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]), shape)
         outStr += "\n    outer loop"
         for v in vertices[0:3]:
-            outStr += "\n      vertex " + vectorToStr(v)
+            outStr += "\n      vertex " + vectorToStr(v, shape)
         outStr += "\n    endloop\n  endfacet\n"
 
         # Oben
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[3], vertices[4], vertices[5]))
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[3], vertices[4], vertices[5]), shape)
         outStr += "\n    outer loop"
         for v in vertices[3:6]:
-            outStr += "\n      vertex " + vectorToStr(v)
+            outStr += "\n      vertex " + vectorToStr(v, shape)
         outStr += "\n    endloop\n  endfacet\n"
 
         # Seiten - erstes Dreieck
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[4]))
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[4]), shape)
         outStr += "\n    outer loop"
-        outStr += "\n      vertex " + vectorToStr(vertices[0])
-        outStr += "\n      vertex " + vectorToStr(vertices[1])
-        outStr += "\n      vertex " + vectorToStr(vertices[4])
+        outStr += "\n      vertex " + vectorToStr(vertices[0], shape)
+        outStr += "\n      vertex " + vectorToStr(vertices[1], shape)
+        outStr += "\n      vertex " + vectorToStr(vertices[4], shape)
         outStr += "\n    endloop\n  endfacet\n"
 
         # Seiten - zweites Dreieck
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[3], vertices[4]))
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[3], vertices[4]), shape)
         outStr += "\n    outer loop"
-        outStr += "\n      vertex " + vectorToStr(vertices[0])
-        outStr += "\n      vertex " + vectorToStr(vertices[3])
-        outStr += "\n      vertex " + vectorToStr(vertices[4])
+        outStr += "\n      vertex " + vectorToStr(vertices[0], shape)
+        outStr += "\n      vertex " + vectorToStr(vertices[3], shape)
+        outStr += "\n      vertex " + vectorToStr(vertices[4], shape)
         outStr += "\n    endloop\n  endfacet\n"
+        safeToFile(fileName, outStr, firstSave)
 
     outStr += "endsolid " + fileName
-    safeToFile(fileName, outStr)
+    safeToFile(fileName, outStr, firstSave)
+    print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 else:
     ''' Keine der gegebenen Körper wurde zur Generation ausgewählt '''
