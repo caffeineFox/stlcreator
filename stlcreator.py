@@ -62,7 +62,7 @@ while (fileName == ""):
 
 # Beginn des STL-Strings einfügen
 outStr = "solid " + fileName + "\n"
-saveToFile()
+saveToFile(fileName)
 saveMode = "a"  # saveMode umstellen
 
 while (shape == ""):
