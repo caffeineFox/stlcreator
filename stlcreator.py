@@ -64,6 +64,8 @@ while (fileName == ""):
 outStr = "solid " + fileName + "\n"
 
 shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
+saveToFile()
+saveMode = "a"  # saveMode umstellen
 
 if (shape in "qQ"):
     ''' Zweig für Quader '''
