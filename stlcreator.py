@@ -9,7 +9,7 @@ def vectorToStr(vector):
     Leerzeichen getrennt zurück)'''
     returnStr:str = ""
     for v in vector:
-        returnStr += str(int(v) if v.is_integer() else v) + " "
+        returnStr += str(int(v) if isinstance(v, int) else v) + " "
     return returnStr
 
 
@@ -27,6 +27,9 @@ def safeToFile(fileName, outStr):
     outFile.write(outStr)
     outFile.close()
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
+
+def degToRad(deg):
+    return deg*np.pi/180
 
 '''
 outStr:
@@ -78,8 +81,8 @@ if (shape in "qQ"):
                    [1,0,1],
                    [1,1,0],
                    [1,1,1]]
-    
-    
+
+
     # solange wie nicht 3 Zahlen für x, y, z eingegeben wurden, wird zur Eingabe aufgefordert
     while (not validInput):
         inp = input("Kantenlängen eingeben (x, y, z und mit Komma getrennt): ").replace(" ", "").split(",")
@@ -95,7 +98,7 @@ if (shape in "qQ"):
     x:float = edgeLen[0]
     y:float = edgeLen[1]
     z:float = edgeLen[2]
-    
+
     # indX/Y/Z:
         # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
         # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
@@ -139,14 +142,14 @@ if (shape in "qQ"):
         # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
         # und zu einem STL-konformen String umgewandelt
         outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
-        
+
         # Beginn der neuen Dreiecksfläche
         outStr += "\n    outer loop"
 
         # die Eckkoordinaten werden zusammen mit dem Schlüsselwort "vertex" an den STL-String angehangen
         for v in vertices:
             outStr += "\n      vertex " + vectorToStr(v)
-        
+
         # Ende der neuen Dreiecksfläche
         outStr += "\n    endloop\n  endfacet\n"
 
@@ -154,13 +157,71 @@ if (shape in "qQ"):
     outStr += "endsolid " + fileName
     safeToFile(fileName, outStr)
 
-
-
 elif (shape in "zZ"):
-    pass
-    #safeToFile(fileName, outStr)
 
+    radius: float
+    height: float
+    inpRadius: str
+    inpHeight: str
+    validInput: bool = False
 
+    # solange keine Float-Zahlen eingeben werden, wiederholt sich des Prompt der Eingabe
+    while (not validInput):
+        inpRadius = input("Radius eingeben: ")
+        inpHeight = input("Höhe eingeben: ")
+        try:
+            radius = float(inpRadius)
+            height = float(inpHeight)
+            validInput = True
+        except ValueError as e:
+            print("Ungültige Eingabe. Bitte gib Float-Zahlen ein.")
+
+    prevVertexBot: [float] = [0, radius, 0]
+    prevVertexTop: [float] = [0, radius, height]
+
+    for alpha in range(18,396,18):
+
+        vertices:[np.array] = [np.array(prevVertexBot),
+                               np.array([np.sin(degToRad(alpha)) * radius, np.cos(degToRad(alpha)) * radius, 0]),
+                               np.array([0, 0, 0]), np.array(prevVertexTop),
+                               np.array([np.sin(degToRad(alpha)) * radius, np.cos(degToRad(alpha)) * radius, height]),
+                               np.array([0, 0, height])]
+        prevVertexBot = vertices[1]
+        prevVertexTop = vertices[4]
+
+        # Unten
+        # siehe Kommentare in if-Zweig für Erklärungen
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
+        outStr += "\n    outer loop"
+        for v in vertices[0:3]:
+            outStr += "\n      vertex " + vectorToStr(v)
+        outStr += "\n    endloop\n  endfacet\n"
+
+        # Oben
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[3], vertices[4], vertices[5]))
+        outStr += "\n    outer loop"
+        for v in vertices[3:6]:
+            outStr += "\n      vertex " + vectorToStr(v)
+        outStr += "\n    endloop\n  endfacet\n"
+
+        # Seiten - erstes Dreieck
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[4]))
+        outStr += "\n    outer loop"
+        outStr += "\n      vertex " + vectorToStr(vertices[0])
+        outStr += "\n      vertex " + vectorToStr(vertices[1])
+        outStr += "\n      vertex " + vectorToStr(vertices[4])
+        outStr += "\n    endloop\n  endfacet\n"
+
+        # Seiten - zweites Dreieck
+        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[3], vertices[4]))
+        outStr += "\n    outer loop"
+        outStr += "\n      vertex " + vectorToStr(vertices[0])
+        outStr += "\n      vertex " + vectorToStr(vertices[3])
+        outStr += "\n      vertex " + vectorToStr(vertices[4])
+        outStr += "\n    endloop\n  endfacet\n"
+
+    outStr += "endsolid " + fileName
+    safeToFile(fileName, outStr)
 
 else:
     ''' Keine der gegebenen Körper wurde zur Generation ausgewählt '''
