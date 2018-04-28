@@ -23,7 +23,7 @@ saveMode:
 outStr:str
 fileName:str = ""
 shape:str = ""
-firstSave:bool = True
+saveMode:str = "w"
 
 def vectorToStr(vector, shape):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
@@ -42,16 +42,10 @@ def calcNormal(p1, p2, p3):
     return np.cross(v, w)
 
 
-def safeToFile(fileName):
+def saveToFile(fileName):
     ''' das Ergebnis der Generation (outStr) wird in eine Datei mit der Endung .stl geschrieben '''
-    global firstSave, outStr
-    if firstSave:
-        outFile = open("./" + fileName + ".stl", "w")
-        firstSave = False
-        print("newFile")
-    else:
-        outFile = open("./" + fileName + ".stl", "a")
-        print("append")
+    global saveMode, outStr
+    outFile = open("./" + fileName + ".stl", saveMode)
     outFile.write(outStr)
     outFile.close()
     outStr = ""
@@ -169,11 +163,11 @@ if (shape in "qQ"):
 
         # Zwischenspeichern
         if __i == 3:
-            safeToFile(fileName)
+            saveToFile(fileName)
 
     # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
-    safeToFile(fileName)
+    saveToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 elif (shape in "zZ"):
@@ -238,10 +232,10 @@ elif (shape in "zZ"):
         outStr += "\n      vertex " + vectorToStr(vertices[3], shape)
         outStr += "\n      vertex " + vectorToStr(vertices[4], shape)
         outStr += "\n    endloop\n  endfacet\n"
-        safeToFile(fileName)
+        saveToFile(fileName)
 
     outStr += "endsolid " + fileName
-    safeToFile(fileName)
+    saveToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 else:
