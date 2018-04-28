@@ -1,6 +1,7 @@
 # Startbefehl: python3 stlcreator.py
 import numpy as np
 import random as r
+import sys
 
 
 '''
@@ -13,18 +14,23 @@ outStr:
 
 fileName:
     # Name für die Outputdatei und das Modell (solid ... bzw endsolid ...)
+    # Standard ist "model"
 shape:
     # Auswahl, ob ein Quader oder ein Zylinder erstellt werden soll
+saveMode:
+    # Speichermodus, am Anfang w -> write -> existierende Datei/Dateiinhalt wird überschrieben
+    # wird nach erstem Speichern auf a gesetzt -> append -> hängt an existierenden Dateiinhalt an
 '''
 
 outStr:str
-fileName:str = ""
+fileName:str = "model"
 shape:str = ""
-firstSave:bool = True
+saveMode:str = "w"
+argv = sys.argv
 
 def vectorToStr(vector, shape):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
-    Leerzeichen getrennt zurück)'''
+    Leerzeichen getrennt zurück), glatte Floats werden zu int konvertiert'''
     returnStr:str = ""
     for v in vector:
         returnStr += str(int(v) if v == int(v) else v) + " "
@@ -39,16 +45,10 @@ def calcNormal(p1, p2, p3):
     return np.cross(v, w)
 
 
-def safeToFile(fileName):
+def saveToFile(fileName):
     ''' das Ergebnis der Generation (outStr) wird in eine Datei mit der Endung .stl geschrieben '''
-    global firstSave, outStr
-    if firstSave:
-        outFile = open("./" + fileName + ".stl", "w")
-        firstSave = False
-        print("newFile")
-    else:
-        outFile = open("./" + fileName + ".stl", "a")
-        print("append")
+    global saveMode, outStr
+    outFile = open("./" + fileName + ".stl", saveMode)
     outFile.write(outStr)
     outFile.close()
     outStr = ""
@@ -59,14 +59,40 @@ def degToRad(deg):
     return deg*np.pi/180
 
 
-# solange fileName leer ist, soll zur Eingabe aufgefordert werden
-while (fileName == ""):
-    fileName:str = input("Dateiname (wird auch als Modellname verwendet): ")
+# Argumentliste prüfen
+if len(argv) > 1:
+    for i in range(1, len(argv)):
+        argv[i] = argv[i].split("=")
+
+
+    if argv[1] in "qQ":
+        shape = "q"
+        for j in range(2, len(argv)):
+            if argv[j][0] not in "xyzXYZmodel":
+                print("Gegebenes Argument fehlerhaft für den gewählten Körper.")
+                exit(0)
+    elif argv[1] in "zZ":
+        shape = "z"
+        for j in range(2, len(argv)):
+            if argv[j][0] not in "rhRHmodel":
+                print("Gegebenes Argument fehlerhaft für den gewählten Körper.")
+                exit(0)
+    else:
+        print("Gegebenes Argument fehlerhaft.")
+        exit(0)
+
+else:
+    # solange fileName leer ist, soll zur Eingabe aufgefordert werden
+    while (fileName == ""):
+        fileName:str = input("Dateiname (wird auch als Modellname verwendet): ")
 
 # Beginn des STL-Strings einfügen
 outStr = "solid " + fileName + "\n"
+saveToFile()
+saveMode = "a"  # saveMode umstellen
 
-shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
+while (shape == ""):
+    shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
 
 if (shape in "qQ"):
     ''' Zweig für Quader '''
@@ -166,11 +192,11 @@ if (shape in "qQ"):
 
         # Zwischenspeichern
         if __i == 3:
-            safeToFile(fileName)
+            saveToFile(fileName)
 
     # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
-    safeToFile(fileName)
+    saveToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 elif (shape in "zZ"):
@@ -235,10 +261,10 @@ elif (shape in "zZ"):
         outStr += "\n      vertex " + vectorToStr(vertices[3], shape)
         outStr += "\n      vertex " + vectorToStr(vertices[4], shape)
         outStr += "\n    endloop\n  endfacet\n"
-        safeToFile(fileName)
+        saveToFile(fileName)
 
     outStr += "endsolid " + fileName
-    safeToFile(fileName)
+    saveToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 else:
