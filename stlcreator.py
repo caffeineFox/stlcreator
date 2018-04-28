@@ -2,6 +2,21 @@
 import numpy as np
 import random as r
 
+
+'''
+outStr:
+    # (STL-) String, der zum Schluss kompletten generierten Text enthält
+    # wird am Ende in Datei geschrieben
+    # andere Option: Zwischenspeicherung und Reset des Strings
+        # einmal mit outFile = open(..., 'w') Datei anlegen,
+        # danach mit = open(..., 'a') anhängen an bestehende Datei
+
+fileName:
+    # Name für die Outputdatei und das Modell (solid ... bzw endsolid ...)
+shape:
+    # Auswahl, ob ein Quader oder ein Zylinder erstellt werden soll
+'''
+
 outStr:str
 fileName:str = ""
 shape:str = ""
@@ -42,29 +57,6 @@ def safeToFile(fileName):
 def degToRad(deg):
     ''' wandelt Grad in Radiant um '''
     return deg*np.pi/180
-
-'''
-outStr:
-    # (STL-) String, der zum Schluss kompletten generierten Text enthält
-    # wird am Ende in Datei geschrieben
-    # andere Option: Zwischenspeicherung und Reset des Strings
-        # einmal mit outFile = open(..., 'w') Datei anlegen,
-        # danach mit = open(..., 'a') anhängen an bestehende Datei
-
-fileName:
-    # Name für die Outputdatei und das Modell (solid ... bzw endsolid ...)
-shape:
-    # Auswahl, ob ein Quader oder ein Zylinder erstellt werden soll
-'''
-#--------------------------------
-
-
-
-
-
-
-
-
 
 
 # solange fileName leer ist, soll zur Eingabe aufgefordert werden
@@ -203,7 +195,6 @@ elif (shape in "zZ"):
     prevVertexBot: [float] = [0, radius, 0]
     prevVertexTop: [float] = [0, radius, height]
 
-    # TODO: war mal range(18, 396, 18), wieso?
     for alpha in range(18,378,18):
 
         vertices:[np.array] = [np.array(prevVertexBot),
