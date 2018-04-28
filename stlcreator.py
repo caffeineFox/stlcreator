@@ -1,7 +1,6 @@
 # Startbefehl: python3 stlcreator.py
 import numpy as np
 import random as r
-import os
 
 outStr:str
 fileName:str = ""
@@ -12,12 +11,8 @@ def vectorToStr(vector, shape):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
     Leerzeichen getrennt zurück)'''
     returnStr:str = ""
-    if shape in "qQ":
-        for v in vector:
-            returnStr += str(int(v) if v.is_integer() else v) + " "
-    else:
-        for v in vector:
-            returnStr += str(int(v) if isinstance(v, int) else v) + " "
+    for v in vector:
+        returnStr += str(int(v) if v == int(v) else v) + " "
     return returnStr
 
 
