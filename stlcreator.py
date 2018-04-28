@@ -3,6 +3,10 @@ import numpy as np
 import random as r
 import os
 
+outStr:str
+fileName:str = ""
+shape:str = ""
+firstSave:bool = True
 
 def vectorToStr(vector, shape):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
@@ -10,7 +14,7 @@ def vectorToStr(vector, shape):
     returnStr:str = ""
     if shape in "qQ":
         for v in vector:
-            returnStr += str(int(v) if v.is_integer() else v) + " " #isinstance(v, int) else v) + " "
+            returnStr += str(int(v) if v.is_integer() else v) + " "
     else:
         for v in vector:
             returnStr += str(int(v) if isinstance(v, int) else v) + " "
@@ -25,15 +29,19 @@ def calcNormal(p1, p2, p3):
     return np.cross(v, w)
 
 
-def safeToFile(fileName, outStr, firstSave):
+def safeToFile(fileName):
     ''' das Ergebnis der Generation (outStr) wird in eine Datei mit der Endung .stl geschrieben '''
+    global firstSave, outStr
     if firstSave:
         outFile = open("./" + fileName + ".stl", "w")
         firstSave = False
+        print("newFile")
     else:
         outFile = open("./" + fileName + ".stl", "a")
+        print("append")
     outFile.write(outStr)
     outFile.close()
+    outStr = ""
 
 
 def degToRad(deg):
@@ -53,10 +61,16 @@ fileName:
 shape:
     # Auswahl, ob ein Quader oder ein Zylinder erstellt werden soll
 '''
-outStr:str
-fileName:str = ""
-shape:str = ""
-firstSave:bool = True
+#--------------------------------
+
+
+
+
+
+
+
+
+
 
 # solange fileName leer ist, soll zur Eingabe aufgefordert werden
 while (fileName == ""):
@@ -101,7 +115,7 @@ if (shape in "qQ"):
             if (len(edgeLen) == 3):
                 validInput = True
         except Exception as e:
-            print("Ungültige Eingabe")
+            print("Ungültige Eingabe. Bitte Ganz- oder Gleitkommazahlen eingeben.")
 
 
     # edgeLen wird der Übersicht wegen auf x, y, z aufgeteilt
@@ -162,12 +176,14 @@ if (shape in "qQ"):
 
         # Ende der neuen Dreiecksfläche
         outStr += "\n    endloop\n  endfacet\n"
+
+        # Zwischenspeichern
         if __i == 3:
-            safeToFile(fileName, outStr, firstSave)
+            safeToFile(fileName)
 
     # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
-    safeToFile(fileName, outStr, firstSave)
+    safeToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 elif (shape in "zZ"):
@@ -187,12 +203,13 @@ elif (shape in "zZ"):
             height = float(inpHeight)
             validInput = True
         except ValueError as e:
-            print("Ungültige Eingabe. Bitte gib Float-Zahlen ein.")
+            print("Ungültige Eingabe. Bitte Ganz- oder Gleitkommazahlen eingeben.")
 
     prevVertexBot: [float] = [0, radius, 0]
     prevVertexTop: [float] = [0, radius, height]
 
-    for alpha in range(18,396,18):
+    # TODO: war mal range(18, 396, 18), wieso?
+    for alpha in range(18,378,18):
 
         vertices:[np.array] = [np.array(prevVertexBot),
                                np.array([np.sin(degToRad(alpha)) * radius, np.cos(degToRad(alpha)) * radius, 0]),
@@ -232,12 +249,12 @@ elif (shape in "zZ"):
         outStr += "\n      vertex " + vectorToStr(vertices[3], shape)
         outStr += "\n      vertex " + vectorToStr(vertices[4], shape)
         outStr += "\n    endloop\n  endfacet\n"
-        safeToFile(fileName, outStr, firstSave)
+        safeToFile(fileName)
 
     outStr += "endsolid " + fileName
-    safeToFile(fileName, outStr, firstSave)
+    safeToFile(fileName)
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
 
 else:
-    ''' Keine der gegebenen Körper wurde zur Generation ausgewählt '''
+    ''' Keine der gegebenen Körper wurde zur Generierung ausgewählt '''
     print("Es wurde keiner der gegebenen Körper gewählt. Das Programm wird beendet.")
