@@ -1,91 +1,86 @@
-solid OpenSCAD_Model
-  facet normal -0 0 1
+solid quader
+  facet normal 0 0 -90 
     outer loop
-      vertex 0 2 3
-      vertex 1 0 3
-      vertex 1 2 3
+      vertex 0 0 0 
+      vertex 0 9 0 
+      vertex 10 9 0 
     endloop
   endfacet
-  facet normal 0 0 1
+  facet normal 0 0 -90 
     outer loop
-      vertex 1 0 3
-      vertex 0 2 3
-      vertex 0 0 3
+      vertex 0 0 5 
+      vertex 0 9 5 
+      vertex 10 9 5 
     endloop
   endfacet
-
-  facet normal 0 0 -2
+  facet normal 0 0 90 
     outer loop
-      vertex 0 0 0
-      vertex 1 2 0
-      vertex 1 0 0
+      vertex 0 0 0 
+      vertex 10 0 0 
+      vertex 10 9 0 
     endloop
   endfacet
-  facet normal -0 0 -1
+  facet normal 0 0 90 
     outer loop
-      vertex 1 2 0
-      vertex 0 0 0
-      vertex 0 2 0
+      vertex 0 0 5 
+      vertex 10 0 5 
+      vertex 10 9 5 
     endloop
   endfacet
-
-  facet normal 0 1 -0
+  facet normal -45 0 0 
     outer loop
-      vertex 1 2 0
-      vertex 0 2 3
-      vertex 1 2 3
+      vertex 0 0 0 
+      vertex 0 0 5 
+      vertex 0 9 5 
     endloop
   endfacet
-  facet normal 0 1 0
+  facet normal -45 0 0 
     outer loop
-      vertex 0 2 3
-      vertex 1 2 0
-      vertex 0 2 0
+      vertex 10 0 0 
+      vertex 10 0 5 
+      vertex 10 9 5 
     endloop
   endfacet
-
-  facet normal 0 -1 0
+  facet normal 45 0 0 
     outer loop
-      vertex 0 0 0
-      vertex 1 0 3
-      vertex 0 0 3
+      vertex 0 0 0 
+      vertex 0 9 0 
+      vertex 0 9 5 
     endloop
   endfacet
-  facet normal 0 -1 -0
+  facet normal 45 0 0 
     outer loop
-      vertex 1 0 3
-      vertex 0 0 0
-      vertex 1 0 0
+      vertex 10 0 0 
+      vertex 10 9 0 
+      vertex 10 9 5 
     endloop
   endfacet
-  
-  facet normal 1 -0 0
+  facet normal 0 -50 0 
     outer loop
-      vertex 1 0 3
-      vertex 1 2 0
-      vertex 1 2 3
+      vertex 0 0 0 
+      vertex 10 0 0 
+      vertex 10 0 5 
     endloop
   endfacet
-  facet normal 1 0 0
+  facet normal 0 -50 0 
     outer loop
-      vertex 1 2 0
-      vertex 1 0 3
-      vertex 1 0 0
+      vertex 0 9 0 
+      vertex 10 9 0 
+      vertex 10 9 5 
     endloop
   endfacet
-
-  facet normal -1 0 0
+  facet normal 0 50 0 
     outer loop
-      vertex 0 0 0
-      vertex 0 2 3
-      vertex 0 2 0
+      vertex 0 0 0 
+      vertex 0 0 5 
+      vertex 10 0 5 
     endloop
   endfacet
-  facet normal -1 -0 0
+  facet normal 0 50 0 
     outer loop
-      vertex 0 2 3
-      vertex 0 0 0
-      vertex 0 0 3
+      vertex 0 9 0 
+      vertex 0 9 5 
+      vertex 10 9 5 
     endloop
   endfacet
-endsolid OpenSCAD_Model
+endsolid quader
