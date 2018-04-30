@@ -1,6 +1,6 @@
 '''
-Startbefehl: python3 stlcreator.py [shape] [arg]
-Hilfe: python3 stlcreator.py h
+Startbefehl: python3 utku_pfingst_tran_stlcreator.py [shape] [arg]
+Hilfe: python3 utku_pfingst_tran_stlcreator.py h
 Autoren:
     # Pfingst, Fabian
     # Utku, Florian
@@ -51,8 +51,8 @@ validInput: bool = False
 
 
 def vectorToStr(vector):
-    ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
-    Leerzeichen getrennt zurück), glatte Floats werden zu int konvertiert'''
+    ''' wandelt gegebenen (R3-) Vektor in STL-konformen String um (gibt die Komponenten mit
+    Leerzeichen getrennt zurück), glatte Floats werden zu Integer konvertiert'''
     returnStr: str = ""
     for v in vector:
         returnStr += str(int(v) if v == int(v) else v) + " "
@@ -60,7 +60,7 @@ def vectorToStr(vector):
 
 
 def calcNormal(p1, p2, p3):
-    # https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+    # Grundlage: https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
     ''' lässt die Normale der von p1, p2, p3 aufgespannten Fläche berechnen '''
     v: np.array = p2 - p1
     w: np.array = p3 - p1
@@ -82,7 +82,7 @@ def degToRad(deg: int) -> float:
 
 
 def printFacet(v1, v2, v3):
-    ''' erstellt ein STL-Facet aus den gegebenen Vektoren'''
+    ''' erzeugt ein STL-Facet aus den gegebenen Vektoren'''
     global outStr
 
     # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
@@ -255,7 +255,7 @@ if len(argv) > 1:
             fileName = input("Datei- und Modelname: ")
 
     elif argv[1][0] in ["h", "help"]:
-        print("usage: python3 stlcreator.py [shape] [arg]")
+        print("usage: python3 utku_pfingst_tran_stlcreator.py [shape] [arg]")
         print("arg\t: Argumente wie Kantenlänge/Radius")
         print("shape\t: q/Q für Quader, z/Z für Zylinder, h/help für diese Hilfeanzeige\n")
         print("mögliche Argumente (Angabe mit [arg]=[Wert], Argumente sind reihenfolgelos):")
