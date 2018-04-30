@@ -64,14 +64,6 @@ def degToRad(deg: int) -> float:
     return deg * np.pi / 180
 
 
-def makeCuboid():
-    pass
-
-
-def makeCylinder():
-    pass
-
-
 def printFacet(v1, v2, v3):
     ''' erstellt ein STL Facet aus den gegebenen Vektoren'''
     global outStr
@@ -89,6 +81,94 @@ def printFacet(v1, v2, v3):
     outStr += "\n    endloop\n  endfacet\n"
     # Zwischenspeichern
     saveToFile()
+
+
+def makeCuboid():
+    global outStr, x, y, z
+    '''
+    bin:
+        # enthält Binärdarstellung der Ziffern 0 - 7
+        # zur Ermittlung der Ecken (Eckkoordinaten) ("vertex"/vertices) verwendet
+    '''
+    bin: [[int]] = [[0, 0, 0],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 1, 1]]
+
+    # indX/Y/Z:
+    # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
+    # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
+    # für erste 4 vertices mit Standardwert 0, 1, 2 belegt
+    indX: int = 0
+    indY: int = 1
+    indZ: int = 2
+
+    # es wird von 0 bis 11 iteriert, damit alle 12 Dreiecksflächen, die für einen
+    # Quader nötig sind, angelegt werden
+    for i in range(0, 12):
+        '''
+        _i, __i:
+            # Hilfsvariablen zur Ebenen- und Dreiecksermittlung
+        vertices:
+            # hält die aktuelle Dreiermenge generierter Ecken/Eckkoordinaten
+        '''
+        _i: int = i % 2
+        __i: int = i % 4
+
+        if 3 < i < 8:
+            indX = 2
+            indY = 0
+            indZ = 1
+        elif i > 7:
+            indX = 1
+            indY = 2
+            indZ = 0
+
+        vertices: [np.array] = []
+        vertices.append(np.array([x * bin[_i][indX],
+                                  y * bin[_i][indY],
+                                  z * bin[_i][indZ]]))
+        vertices.append(np.array([x * bin[_i + (2 if __i in [0, 1] else 4)][indX],
+                                  y * bin[_i + (2 if __i in [0, 1] else 4)][indY],
+                                  z * bin[_i + (2 if __i in [0, 1] else 4)][indZ]]))
+        vertices.append(np.array([x * bin[_i + 6][indX],
+                                  y * bin[_i + 6][indY],
+                                  z * bin[_i + 6][indZ]]))
+
+        printFacet(vertices[0], vertices[1], vertices[2])
+
+
+def makeCylinder():
+    global outStr, radius, height
+
+    prevVertexBot: [float] = [0, radius, 0]
+    prevVertexTop: [float] = [0, radius, height]
+
+    for alpha in range(18, 378, 18):
+        alphaRad: float = degToRad(alpha)
+        vertices: [np.array] = [np.array(prevVertexBot),
+                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, 0]),
+                                np.array([0, 0, 0]), np.array(prevVertexTop),
+                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, height]),
+                                np.array([0, 0, height])]
+        prevVertexBot = vertices[1]
+        prevVertexTop = vertices[4]
+
+        # Unten
+        printFacet(vertices[0], vertices[1], vertices[2])
+
+        # Oben
+        printFacet(vertices[3], vertices[4], vertices[5])
+
+        # Seiten - erstes Dreieck
+        printFacet(vertices[0], vertices[1], vertices[4])
+
+        # Seiten - zweites Dreieck
+        printFacet(vertices[0], vertices[3], vertices[4])
 
 
 # Argumentliste prüfen, wenn Argumente gegeben, dann aufteilen und auswerten
@@ -176,7 +256,6 @@ if len(argv) > 1:
         print("Gegebenes Argument fehlerhaft.", argv[1][0], "ist kein Key für Quader bzw. Zylinder.")
         exit(0)
 
-
 else:
     # solange fileName leer ist, soll zur Eingabe aufgefordert werden
     while fileName == "":
@@ -214,6 +293,15 @@ else:
         z = edgeLen[2]
 
     elif shape in "zZ":
+        ''' Zweig für Zylinder '''
+        '''
+        inpRadius:
+            # nimmt Input für den Radius als String entgegen und versucht es zu einem Float zu casten
+        inpHeight:
+            # nimmt Input für die Höhe als String entgegen und versucht es zu einem Float zu casten
+        validInput:
+            # solange falsch, bis Float Zahlen für inpRadius und inpHeight eingegeben wurden
+        '''
         inpRadius: str
         inpHeight: str
 
@@ -239,95 +327,12 @@ saveToFile()
 saveMode = "a"  # saveMode umstellen
 
 if shape in "qQ":
-    '''
-    bin:
-        # enthält Binärdarstellung der Ziffern 0 - 7
-        # zur Ermittlung der Ecken (Eckkoordinaten) ("vertex"/vertices) verwendet
-    '''
-    bin: [[int]] = [[0, 0, 0],
-                    [0, 0, 1],
-                    [0, 1, 0],
-                    [0, 1, 1],
-                    [1, 0, 0],
-                    [1, 0, 1],
-                    [1, 1, 0],
-                    [1, 1, 1]]
-
-    # indX/Y/Z:
-    # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
-    # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
-    # für erste 4 vertices mit Standardwert 0, 1, 2 belegt
-    indX: int = 0
-    indY: int = 1
-    indZ: int = 2
-
-    # es wird von 0 bis 11 iteriert, damit alle 12 Dreiecksflächen, die für einen
-    # Quader nötig sind, angelegt werden
-    for i in range(0, 12):
-        '''
-        _i, __i:
-            # Hilfsvariablen zur Ebenen- und Dreiecksermittlung
-        vertices:
-            # hält die aktuelle Dreiermenge generierter Ecken/Eckkoordinaten
-        '''
-        _i: int = i % 2
-        __i: int = i % 4
-
-        if 3 < i < 8:
-            indX = 2
-            indY = 0
-            indZ = 1
-        elif i > 7:
-            indX = 1
-            indY = 2
-            indZ = 0
-
-        vertices: [np.array] = []
-        vertices.append(np.array([x * bin[_i][indX],
-                                  y * bin[_i][indY],
-                                  z * bin[_i][indZ]]))
-        vertices.append(np.array([x * bin[_i + (2 if __i in [0, 1] else 4)][indX],
-                                  y * bin[_i + (2 if __i in [0, 1] else 4)][indY],
-                                  z * bin[_i + (2 if __i in [0, 1] else 4)][indZ]]))
-        vertices.append(np.array([x * bin[_i + 6][indX],
-                                  y * bin[_i + 6][indY],
-                                  z * bin[_i + 6][indZ]]))
-
-        printFacet(vertices[0], vertices[1], vertices[2])
-
-    # Ende des STL-Strings einfügen
-    outStr += "endsolid " + fileName
-    saveToFile()
-    print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
-
+    makeCuboid()
 
 elif shape in "zZ":
-    prevVertexBot: [float] = [0, radius, 0]
-    prevVertexTop: [float] = [0, radius, height]
+    makeCylinder()
 
-    for alpha in range(18, 378, 18):
-        alphaRad: float = degToRad(alpha)
-        vertices: [np.array] = [np.array(prevVertexBot),
-                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, 0]),
-                                np.array([0, 0, 0]), np.array(prevVertexTop),
-                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, height]),
-                                np.array([0, 0, height])]
-        prevVertexBot = vertices[1]
-        prevVertexTop = vertices[4]
-
-        # Unten
-        printFacet(vertices[0], vertices[1], vertices[2])
-
-        # Oben
-        printFacet(vertices[3], vertices[4], vertices[5])
-
-        # Seiten - erstes Dreieck
-        printFacet(vertices[0], vertices[1], vertices[4])
-
-        # Seiten - zweites Dreieck
-        printFacet(vertices[0], vertices[3], vertices[4])
-
-    # Ende des STL-Strings einfügen
-    outStr += "endsolid " + fileName
-    saveToFile()
-    print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
+# Ende des STL-Strings einfügen
+outStr += "endsolid " + fileName
+saveToFile()
+print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
