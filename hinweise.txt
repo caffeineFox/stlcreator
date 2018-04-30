@@ -1,0 +1,6 @@
+makeCuboid und makeCylinder wurden als dummies hinzugefügt. die generierung
+der eigentlichen shapes kann gerne dorthin ausgelagert werden, dazu wäre die
+angabe "global x, y, z, outStr", analog "global radius, height,
+outstr" nötig → verzweigungen ca ab zeile 220 würden in diese funktionen extrahiert und nach eingaben aufgerufen (makeCuboid() bzw makeCykinder())
+
+refactoring und bissl kommentare wären toll wenns nötig is
