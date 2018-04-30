@@ -52,7 +52,7 @@ def calcNormal(p1, p2, p3):
     return np.cross(v, w)
 
 
-def saveToFile():#fileName):
+def saveToFile():
     ''' das Ergebnis der Generation (outStr) wird in eine Datei mit der Endung .stl geschrieben '''
     global saveMode, outStr, fileName
     outFile = open("./" + fileName + ".stl", saveMode)
@@ -251,7 +251,7 @@ if shape in "qQ":
     for i in range(0, 12):
         '''
         _i, __i:
-            # Hilfsvariablen
+            # Hilfsvariablen zur Ebenen- und Dreiecksermittlung
         vertices:
             # hält die aktuelle Dreiermenge generierter Ecken/Eckkoordinaten
         '''
