@@ -1,8 +1,6 @@
 # Startbefehl: python3 stlcreator.py
 import numpy as np
-import random as r
 import sys
-
 
 '''
 outStr:
@@ -22,23 +20,23 @@ saveMode:
     # durch append wird Zwischenspeichern ermöglicht
 '''
 
-outStr:str
-fileName:str = ""
-shape:str = ""
-saveMode:str = "w"
+outStr: str
+fileName: str = ""
+shape: str = ""
+saveMode: str = "w"
 argv = sys.argv
-x:float = 0
-y:float = 0
-z:float = 0
-radius:float = 0
-height:float = 0
-validInput:bool = False
+x: float = 0
+y: float = 0
+z: float = 0
+radius: float = 0
+height: float = 0
+validInput: bool = False
 
 
 def vectorToStr(vector):
     ''' wandelt gegebenen (R3-) Vector in STL-konformen String um (gibt die Komponenten mit
     Leerzeichen getrennt zurück), glatte Floats werden zu int konvertiert'''
-    returnStr:str = ""
+    returnStr: str = ""
     for v in vector:
         returnStr += str(int(v) if v == int(v) else v) + " "
     return returnStr
@@ -47,8 +45,8 @@ def vectorToStr(vector):
 def calcNormal(p1, p2, p3):
     # https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
     ''' lässt die Normale der von p1, p2, p3 aufgespannten Fläche berechnen '''
-    v:np.array = p2 - p1
-    w:np.array = p3 - p1
+    v: np.array = p2 - p1
+    w: np.array = p3 - p1
     return np.cross(v, w)
 
 
@@ -61,9 +59,9 @@ def saveToFile():
     outStr = ""
 
 
-def degToRad(deg):
+def degToRad(deg: int) -> float:
     ''' wandelt Grad in Radiant um '''
-    return deg*np.pi/180
+    return deg * np.pi / 180
 
 
 def makeCuboid():
@@ -72,6 +70,25 @@ def makeCuboid():
 
 def makeCylinder():
     pass
+
+
+def printFacet(v1, v2, v3):
+    ''' erstellt ein STL Facet aus den gegebenen Vektoren'''
+    global outStr
+
+    # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
+    # und zu einem STL-konformen String umgewandelt
+    outStr += "  facet normal " + vectorToStr(calcNormal(v1, v2, v3))
+    # Beginn der neuen Dreiecksfläche
+    outStr += "\n    outer loop"
+    # die Eckkoordinaten werden zusammen mit dem Schlüsselwort "vertex" an den STL-String angehangen
+    outStr += "\n      vertex " + vectorToStr(v1)
+    outStr += "\n      vertex " + vectorToStr(v2)
+    outStr += "\n      vertex " + vectorToStr(v3)
+    # Ende der neuen Dreiecksfläche
+    outStr += "\n    endloop\n  endfacet\n"
+    # Zwischenspeichern
+    saveToFile()
 
 
 # Argumentliste prüfen, wenn Argumente gegeben, dann aufteilen und auswerten
@@ -115,9 +132,9 @@ if len(argv) > 1:
         shape = "z"
         for j in range(2, len(argv)):
             try:
-                if argv[j][0] in ["r","R","radius"]:
+                if argv[j][0] in ["r", "R", "radius"]:
                     radius = float(argv[j][1])
-                elif argv[j][0] in ["h","H","height"]:
+                elif argv[j][0] in ["h", "H", "height"]:
                     height = float(argv[j][1])
                 elif argv[j][0] in "name":
                     fileName = argv[j][1]
@@ -162,10 +179,10 @@ if len(argv) > 1:
 
 else:
     # solange fileName leer ist, soll zur Eingabe aufgefordert werden
-    while (fileName == ""):
+    while fileName == "":
         fileName = input("Dateiname (wird auch als Modellname verwendet): ")
 
-    while (shape == ""):
+    while shape == "":
         shape = input("Soll ein Quader (q/Q) oder ein Zylinder (z/Z) erstellt werden? > ")
 
     if shape in "qQ":
@@ -178,8 +195,8 @@ else:
         validInput:
             # solange falsch, bis als für sinnvoll erachtete Kantenlängenwerte (sprich (Gleitkomma-) Zahlen) eingegeben wurden
         '''
-        edgeLen:[float]
-        inp:[str]
+        edgeLen: [float]
+        inp: [str]
 
         # solange wie nicht 3 Zahlen für x, y, z eingegeben wurden, wird zur Eingabe aufgefordert
         while not validInput:
@@ -216,12 +233,10 @@ else:
         print("Es wurde keiner der gegebenen Körper gewählt. Das Programm wird beendet.")
         exit(0)
 
-
 # Beginn des STL-Strings einfügen
 outStr = "solid " + fileName + "\n"
 saveToFile()
 saveMode = "a"  # saveMode umstellen
-
 
 if shape in "qQ":
     '''
@@ -229,22 +244,22 @@ if shape in "qQ":
         # enthält Binärdarstellung der Ziffern 0 - 7
         # zur Ermittlung der Ecken (Eckkoordinaten) ("vertex"/vertices) verwendet
     '''
-    bin:[[int]] = [[0,0,0],
-                   [0,0,1],
-                   [0,1,0],
-                   [0,1,1],
-                   [1,0,0],
-                   [1,0,1],
-                   [1,1,0],
-                   [1,1,1]]
+    bin: [[int]] = [[0, 0, 0],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 1, 1]]
 
     # indX/Y/Z:
-        # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
-        # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
-        # für erste 4 vertices mit Standardwert 0, 1, 2 belegt
-    indX:int = 0
-    indY:int = 1
-    indZ:int = 2
+    # verwendet, um Code zu sparen, da sonst Unterscheidung wie jetzt mit
+    # i > 3 and i < 8 etc mit vertices.append etc notwendig wäre -> wäre unübersichtlicher
+    # für erste 4 vertices mit Standardwert 0, 1, 2 belegt
+    indX: int = 0
+    indY: int = 1
+    indZ: int = 2
 
     # es wird von 0 bis 11 iteriert, damit alle 12 Dreiecksflächen, die für einen
     # Quader nötig sind, angelegt werden
@@ -255,46 +270,30 @@ if shape in "qQ":
         vertices:
             # hält die aktuelle Dreiermenge generierter Ecken/Eckkoordinaten
         '''
-        _i:int = i % 2
-        __i:int = i % 4
+        _i: int = i % 2
+        __i: int = i % 4
 
-        if i > 3 and i < 8:
+        if 3 < i < 8:
             indX = 2
             indY = 0
             indZ = 1
-        elif (i > 7):
+        elif i > 7:
             indX = 1
             indY = 2
             indZ = 0
 
-        vertices:[np.array] = []
-        vertices.append(np.array([x*bin[_i][indX],
-                                  y*bin[_i][indY],
-                                  z*bin[_i][indZ]]))
-        vertices.append(np.array([x*bin[_i+(2 if __i in [0, 1] else 4)][indX],
-                                  y*bin[_i+(2 if __i in [0, 1] else 4)][indY],
-                                  z*bin[_i+(2 if __i in [0, 1] else 4)][indZ]]))
-        vertices.append(np.array([x*bin[_i+6][indX],
-                                  y*bin[_i+6][indY],
-                                  z*bin[_i+6][indZ]]))
+        vertices: [np.array] = []
+        vertices.append(np.array([x * bin[_i][indX],
+                                  y * bin[_i][indY],
+                                  z * bin[_i][indZ]]))
+        vertices.append(np.array([x * bin[_i + (2 if __i in [0, 1] else 4)][indX],
+                                  y * bin[_i + (2 if __i in [0, 1] else 4)][indY],
+                                  z * bin[_i + (2 if __i in [0, 1] else 4)][indZ]]))
+        vertices.append(np.array([x * bin[_i + 6][indX],
+                                  y * bin[_i + 6][indY],
+                                  z * bin[_i + 6][indZ]]))
 
-        # aus den 3 zuvor erzeugten vertices wird die Normale der aufgespannten Fläche berechnet
-        # und zu einem STL-konformen String umgewandelt
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
-
-        # Beginn der neuen Dreiecksfläche
-        outStr += "\n    outer loop"
-
-        # die Eckkoordinaten werden zusammen mit dem Schlüsselwort "vertex" an den STL-String angehangen
-        for v in vertices:
-            outStr += "\n      vertex " + vectorToStr(v)
-
-        # Ende der neuen Dreiecksfläche
-        outStr += "\n    endloop\n  endfacet\n"
-
-        # Zwischenspeichern
-        if __i == 3:
-            saveToFile()
+        printFacet(vertices[0], vertices[1], vertices[2])
 
     # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
@@ -306,48 +305,29 @@ elif shape in "zZ":
     prevVertexBot: [float] = [0, radius, 0]
     prevVertexTop: [float] = [0, radius, height]
 
-    for alpha in range(18,378,18):
-
-        vertices:[np.array] = [np.array(prevVertexBot),
-                               np.array([np.sin(degToRad(alpha)) * radius, np.cos(degToRad(alpha)) * radius, 0]),
-                               np.array([0, 0, 0]), np.array(prevVertexTop),
-                               np.array([np.sin(degToRad(alpha)) * radius, np.cos(degToRad(alpha)) * radius, height]),
-                               np.array([0, 0, height])]
+    for alpha in range(18, 378, 18):
+        alphaRad: float = degToRad(alpha)
+        vertices: [np.array] = [np.array(prevVertexBot),
+                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, 0]),
+                                np.array([0, 0, 0]), np.array(prevVertexTop),
+                                np.array([np.sin(alphaRad) * radius, np.cos(alphaRad) * radius, height]),
+                                np.array([0, 0, height])]
         prevVertexBot = vertices[1]
         prevVertexTop = vertices[4]
 
         # Unten
-        # siehe Kommentare in if-Zweig für Erklärungen
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[2]))
-        outStr += "\n    outer loop"
-        for v in vertices[0:3]:
-            outStr += "\n      vertex " + vectorToStr(v)
-        outStr += "\n    endloop\n  endfacet\n"
+        printFacet(vertices[0], vertices[1], vertices[2])
 
         # Oben
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[3], vertices[4], vertices[5]))
-        outStr += "\n    outer loop"
-        for v in vertices[3:6]:
-            outStr += "\n      vertex " + vectorToStr(v)
-        outStr += "\n    endloop\n  endfacet\n"
+        printFacet(vertices[3], vertices[4], vertices[5])
 
         # Seiten - erstes Dreieck
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[1], vertices[4]))
-        outStr += "\n    outer loop"
-        outStr += "\n      vertex " + vectorToStr(vertices[0])
-        outStr += "\n      vertex " + vectorToStr(vertices[1])
-        outStr += "\n      vertex " + vectorToStr(vertices[4])
-        outStr += "\n    endloop\n  endfacet\n"
+        printFacet(vertices[0], vertices[1], vertices[4])
 
         # Seiten - zweites Dreieck
-        outStr += "  facet normal " + vectorToStr(calcNormal(vertices[0], vertices[3], vertices[4]))
-        outStr += "\n    outer loop"
-        outStr += "\n      vertex " + vectorToStr(vertices[0])
-        outStr += "\n      vertex " + vectorToStr(vertices[3])
-        outStr += "\n      vertex " + vectorToStr(vertices[4])
-        outStr += "\n    endloop\n  endfacet\n"
-        saveToFile()
+        printFacet(vertices[0], vertices[3], vertices[4])
 
+    # Ende des STL-Strings einfügen
     outStr += "endsolid " + fileName
     saveToFile()
     print("Die Datei wurde im aktuellen Arbeitsverzeichnis unter dem Name " + fileName + ".stl abgelegt.")
